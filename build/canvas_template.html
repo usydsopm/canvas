@@ -33,8 +33,18 @@
     --ink:        #1B1F23;
   }
   * { box-sizing: border-box; }
-  body {
+  /* This page is designed to sit in a fixed-height Canvas iframe with a
+     single scrollbar living INSIDE .feed-list. For that to work with any
+     iframe height you pick (rather than one exact magic number), the page
+     itself must exactly fill the iframe's viewport (100%/100vh) and let
+     .feed-list absorb all the leftover space via flex — see .feed-wrap
+     and .feed-list below. If this ever gets embedded plainly (not in an
+     iframe), it just fills the browser window instead, which is fine. */
+  html, body {
+    height: 100%;
     margin: 0;
+  }
+  body {
     font-family: 'Poppins', -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--pale);
     color: var(--ink);
@@ -42,6 +52,9 @@
   .feed-wrap {
     max-width: 860px;
     margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     padding: 24px 16px 12px;
   }
   .feed-head {
@@ -82,19 +95,18 @@
   }
   .feed-title .title-shadow { fill: var(--light-teal); }
   .feed-title .title-main { fill: var(--deep-teal); }
-  /* Fixed-height scroll box: all posts stack vertically as before, but the
-     list scrolls internally within a fixed height instead of expanding
-     the whole page — good for Canvas, where you don't want one embed to
-     take over the entire course page. Adjust --feed-scroll-height to
-     taste (it's a CSS var so it's easy to find/change in one place). */
-  :root {
-    --feed-scroll-height: 1000px;
-  }
+  /* Scroll box: fills whatever vertical space is left over in .feed-wrap
+     after the header and footer take theirs (flex: 1 1 auto + min-height:
+     0 is what makes a flex child scroll instead of just growing forever),
+     so it automatically fits ANY iframe height with exactly one scrollbar
+     — no more picking a magic pixel value that has to match the iframe's
+     height attribute exactly. */
   .feed-list {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    max-height: var(--feed-scroll-height);
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     padding: 4px 4px 4px 0;
     scrollbar-width: thin;
