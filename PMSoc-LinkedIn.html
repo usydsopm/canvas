@@ -82,19 +82,55 @@
   }
   .feed-title .title-shadow { fill: var(--light-teal); }
   .feed-title .title-main { fill: var(--deep-teal); }
+  /* Auto-cycling carousel: only one .feed-item is laid out (position:
+     relative) at a time — that's the one with .is-active — so the
+     container's height tracks whichever card is showing. The rest sit
+     absolutely-positioned on top with opacity 0, which is what makes the
+     crossfade work without a layout jump. */
   .feed-list {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
+    position: relative;
   }
   .feed-item {
     display: flex;
     flex-direction: column;
+    transition: opacity 0.6s ease;
     border: 1px solid var(--mid-teal);
     border-radius: 10px;
     overflow: hidden;
     background: #fff;
     box-shadow: 0 2px 6px rgba(4, 72, 75, 0.08);
+  }
+  .feed-item:not(.is-active) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .feed-item.is-active {
+    position: relative;
+    opacity: 1;
+  }
+  .feed-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .feed-dots button {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--light-teal);
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .feed-dots button.is-active {
+    background: var(--deep-teal);
+    transform: scale(1.25);
   }
   .feed-item-body {
     display: flex;
@@ -406,6 +442,7 @@
       </div>
     </div>
   </div>
+  <div class="feed-dots" role="tablist" aria-label="Choose a post"></div>
 
   <div class="feed-foot">
     <a href="https://www.linkedin.com/company/sydney-university-project-management-society/" target="_blank" rel="noopener">See more on PMSOC LinkedIn</a>
@@ -433,6 +470,48 @@
     document.querySelectorAll('.date-text[data-iso]').forEach(function (el) {
       el.textContent = timeAgo(el.getAttribute('data-iso'));
     });
+  })();
+
+  // Auto-cycling carousel — crossfades through the posts on its own,
+  // pauses while a viewer's mouse is over it, and offers dot navigation
+  // for anyone who wants to jump straight to a post.
+  (function () {
+    var items = Array.prototype.slice.call(document.querySelectorAll('.feed-item'));
+    var dotsWrap = document.querySelector('.feed-dots');
+    if (items.length <= 1) return;
+
+    var idx = 0;
+    var INTERVAL_MS = 7000;
+    var timer = null;
+
+    items.forEach(function (el, i) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.setAttribute('aria-label', 'Show post ' + (i + 1) + ' of ' + items.length);
+      dot.addEventListener('click', function () {
+        goTo(i);
+        restart();
+      });
+      dotsWrap.appendChild(dot);
+    });
+    var dots = Array.prototype.slice.call(dotsWrap.children);
+
+    function goTo(i) {
+      idx = i;
+      items.forEach(function (el, j) { el.classList.toggle('is-active', j === idx); });
+      dots.forEach(function (d, j) { d.classList.toggle('is-active', j === idx); });
+    }
+    function next() { goTo((idx + 1) % items.length); }
+    function start() { timer = setInterval(next, INTERVAL_MS); }
+    function stop() { clearInterval(timer); }
+    function restart() { stop(); start(); }
+
+    goTo(0);
+    start();
+
+    var wrap = document.querySelector('.feed-list');
+    wrap.addEventListener('mouseenter', stop);
+    wrap.addEventListener('mouseleave', start);
   })();
 </script>
 </body>
