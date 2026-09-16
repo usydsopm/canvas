@@ -3,134 +3,239 @@
 <head>
 <meta charset="UTF-8">
 <title>PMSoc Instagram</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:wght@700;800&family=Poppins:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  /* Title wordmark font (Fraunces, weight 600) — embedded directly as a
-     data-URI @font-face so the title renders correctly even inside
-     sandboxed/offline viewers (e.g. Canvas LMS) without depending on a
-     Google Fonts network request. Same embedded font as the LinkedIn
-     widget (build/assets/fraunces_b64.txt), reused here for consistency. */
-  @font-face {
-    font-family: 'Fraunces';
-    src: url(data:font/woff2;base64,{fraunces_font}) format('woff2');
-    font-weight: 400 900;
-    font-style: normal;
-    font-display: swap;
-  }
   /* ============================================================
-     PALETTE (matches the LinkedIn widget — SOPM x PMSoc BBQ flyer)
-     --deep-teal   #04484b  headings, footer link, dates
-     --mid-teal    #587e7f  borders, accents
-     --pale        #dce5e6  page background
-     --light-teal  #b7d0d1  hover states, chips
+     PALETTE — authentic Instagram look (white / black-grey text /
+     Instagram blue), matching the real pmsoc.usyd profile page
+     rather than the SoPM/PMSoc teal branding used on the LinkedIn
+     widget. System font stack matches Instagram's own UI font.
      ============================================================ */
   :root {
-    --deep-teal:  #04484b;
-    --mid-teal:   #587e7f;
-    --pale:       #dce5e6;
-    --light-teal: #b7d0d1;
-    --ink:        #1B1F23;
+    --ig-bg:            #ffffff;
+    --ig-page-bg:       #fafafa;
+    --ig-border:        #dbdbdb;
+    --ig-border-light:  #efefef;
+    --ig-text:          #262626;
+    --ig-text-secondary:#8e8e8e;
+    --ig-blue:          #0095f6;
+    --ig-blue-hover:    #1877f2;
   }
   * { box-sizing: border-box; }
-  /* Same fixed-height-iframe trick as the LinkedIn widget: the page fills
-     the iframe viewport exactly and .feed-list absorbs the leftover space
-     via flex, so any iframe height works with a single internal scrollbar. */
   html, body {
     height: 100%;
     margin: 0;
   }
   body {
-    font-family: 'Poppins', -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--pale);
-    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--ig-page-bg);
+    color: var(--ig-text);
   }
   .feed-wrap {
-    max-width: 860px;
+    max-width: 700px;
     margin: 0 auto;
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 24px 16px 12px;
+    background: var(--ig-bg);
+    border-left: 1px solid var(--ig-border-light);
+    border-right: 1px solid var(--ig-border-light);
   }
-  .feed-head {
+
+  /* ---------------- Profile header ---------------- */
+  .ig-header {
+    flex: 0 0 auto;
+    padding: 24px 20px 0;
+  }
+  .ig-header-top {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: center;
+    gap: 28px;
     margin-bottom: 20px;
   }
-  .feed-head-top {
+  .ig-avatar {
+    flex: 0 0 auto;
+    width: 77px;
+    height: 77px;
+    border-radius: 50%;
+    object-fit: contain;
+    border: 1px solid var(--ig-border-light);
+    background: #fff;
+    padding: 3px;
+  }
+  .ig-header-info {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .ig-username-row {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    gap: 14px;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .ig-username {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--ig-text);
     text-decoration: none;
   }
-  .feed-head-logo {
-    flex: 0 0 auto;
-    width: 54px;
-    height: 54px;
-    border-radius: 14px;
-    object-fit: contain;
-    border: 1px solid var(--light-teal);
-    background: #fff;
+  .ig-btn {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 18px;
+    border: 1px solid transparent;
+  }
+  .ig-btn-follow {
+    background: var(--ig-blue);
+    color: #fff;
+  }
+  .ig-btn-follow:hover { background: var(--ig-blue-hover); }
+  .ig-btn-message {
+    background: #efefef;
+    color: var(--ig-text);
+  }
+  .ig-btn-message:hover { background: var(--ig-border); }
+  .ig-stats-row {
+    display: flex;
+    gap: 28px;
+    font-size: 14px;
+    color: var(--ig-text);
+  }
+  .ig-stats-row b { font-weight: 600; }
+  .ig-bio {
+    padding-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .ig-bio-name {
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+  .ig-bio-text {
+    margin: 0 0 4px;
+    white-space: pre-line;
+    color: var(--ig-text);
+  }
+  .ig-bio-text a {
+    color: var(--ig-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .ig-bio-text a:hover { text-decoration: underline; }
+  .ig-bio-link {
+    color: #00376b;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .ig-bio-link:hover { text-decoration: underline; }
+
+  /* ---------------- Tabs ---------------- */
+  .ig-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 56px;
+    border-top: 1px solid var(--ig-border-light);
+  }
+  .ig-tab {
     display: flex;
     align-items: center;
-    justify-content: center;
-  }
-  .feed-head-logo svg {
-    width: 32px;
-    height: 32px;
-    fill: none;
-    stroke: var(--deep-teal);
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .feed-title {
-    flex: 0 1 auto;
-    height: 54px;
-    width: auto;
-    max-width: 100%;
-    overflow: visible;
-  }
-  .feed-title text {
-    font-family: 'Fraunces', 'Playfair Display', serif;
+    gap: 6px;
+    padding: 14px 2px;
+    font-size: 12px;
     font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--ig-text-secondary);
+    text-decoration: none;
+    border-top: 1px solid transparent;
+    margin-top: -1px;
   }
-  .feed-title .title-shadow { fill: var(--light-teal); }
-  .feed-title .title-main { fill: var(--deep-teal); }
+  .ig-tab svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+  .ig-tab.active {
+    color: var(--ig-text);
+    border-top-color: var(--ig-text);
+  }
+
+  /* ---------------- 3-column grid ---------------- */
+  .ig-grid {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    padding: 3px 0 0;
+  }
+  .ig-grid-item {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--ig-border-light);
+  }
+  .ig-grid-item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ig-grid-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    fill: #fff;
+    stroke: #fff;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.6));
+  }
+
+  .feed-section-label {
+    flex: 0 0 auto;
+    padding: 18px 20px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ig-text-secondary);
+    border-top: 1px solid var(--ig-border-light);
+  }
+
   .feed-list {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    padding: 4px 4px 4px 0;
+    padding: 0 16px 12px;
     scrollbar-width: thin;
-    scrollbar-color: var(--mid-teal) var(--pale);
+    scrollbar-color: var(--ig-border) var(--ig-bg);
   }
   .feed-list::-webkit-scrollbar { width: 8px; }
-  .feed-list::-webkit-scrollbar-track { background: var(--pale); }
+  .feed-list::-webkit-scrollbar-track { background: var(--ig-bg); }
   .feed-list::-webkit-scrollbar-thumb {
-    background: var(--mid-teal);
+    background: var(--ig-border);
     border-radius: 999px;
   }
   /* Instagram-style post card: header (avatar+handle), square photo,
-     action-icon row, likes/caption block — unlike the LinkedIn card the
-     photo is a full-width square ABOVE the text, matching an IG post. */
+     action-icon row, likes/caption block. */
   .feed-item {
     display: flex;
     flex-direction: column;
     flex: 0 0 auto;
-    border: 1px solid var(--mid-teal);
-    border-radius: 10px;
+    border: 1px solid var(--ig-border-light);
+    border-radius: 8px;
     overflow: hidden;
     background: #fff;
-    box-shadow: 0 2px 6px rgba(4, 72, 75, 0.08);
   }
   .feed-item-header {
     display: flex;
@@ -139,25 +244,25 @@
     padding: 12px 14px;
   }
   .feed-item-avatar {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     object-fit: contain;
-    border: 1px solid var(--light-teal);
+    border: 1px solid var(--ig-border-light);
     background: #fff;
     padding: 2px;
     flex: 0 0 auto;
   }
   .feed-item-handle {
     font-size: 13.5px;
-    font-weight: 700;
-    color: var(--deep-teal);
+    font-weight: 600;
+    color: var(--ig-text);
   }
   .feed-item-photo {
     position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
-    background: var(--light-teal);
+    background: var(--ig-border-light);
     overflow: hidden;
     min-height: 0;
   }
@@ -174,7 +279,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    background: rgba(4, 72, 75, 0.75);
+    background: rgba(0, 0, 0, 0.55);
     color: #fff;
     font-size: 11px;
     font-weight: 700;
@@ -192,23 +297,20 @@
     display: flex;
     align-items: center;
     padding: 10px 14px 4px;
-    gap: 14px;
+    gap: 16px;
   }
   .feed-item-actions .action {
     display: flex;
     align-items: center;
-    color: var(--mid-teal);
+    color: var(--ig-text);
     text-decoration: none;
     cursor: pointer;
-    transition: color 0.15s ease;
   }
-  .feed-item-actions .action:hover { color: var(--deep-teal); }
-  .feed-item-actions .action:hover svg { stroke: var(--deep-teal); }
   .feed-item-actions .action svg {
     width: 22px;
     height: 22px;
     fill: none;
-    stroke: var(--mid-teal);
+    stroke: var(--ig-text);
     stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -222,8 +324,8 @@
     align-items: center;
     gap: 4px;
     font-size: 11px;
-    font-weight: 600;
-    color: var(--mid-teal);
+    font-weight: 400;
+    color: var(--ig-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 6px;
@@ -232,79 +334,107 @@
     font-size: 13.5px;
     line-height: 1.55;
     margin: 0 0 8px;
-    color: var(--ink);
+    color: var(--ig-text);
     white-space: pre-line;
   }
   .feed-item-caption .handle-inline {
-    font-weight: 700;
-    color: var(--deep-teal);
+    font-weight: 600;
+    color: var(--ig-text);
     margin-right: 4px;
   }
   .feed-item-link {
     font-size: 12.5px;
     font-weight: 600;
-    color: var(--deep-teal);
+    color: var(--ig-blue);
     text-decoration: none;
-    border-bottom: 1px solid var(--mid-teal);
-    padding-bottom: 1px;
   }
-  .feed-item-link:hover { color: var(--mid-teal); }
+  .feed-item-link:hover { color: var(--ig-blue-hover); }
   .feed-foot {
+    flex: 0 0 auto;
     text-align: center;
-    padding: 18px 0 24px;
+    padding: 16px 0 20px;
   }
   .feed-foot a {
     display: inline-block;
-    font-family: 'Poppins', sans-serif;
-    color: var(--deep-teal);
-    background: var(--light-teal);
-    padding: 8px 18px;
-    border-radius: 999px;
+    color: #fff;
+    background: var(--ig-blue);
+    padding: 8px 20px;
+    border-radius: 8px;
     font-size: 13px;
     text-decoration: none;
     font-weight: 600;
-    letter-spacing: 0.02em;
-    transition: background 0.15s ease;
   }
-  .feed-foot a:hover { background: var(--mid-teal); color: #fff; }
+  .feed-foot a:hover { background: var(--ig-blue-hover); }
 </style>
 </head>
 <body>
 
 <div class="feed-wrap">
-  <div class="feed-head">
-    <!-- Avatar box uses an inline Feather "instagram" icon (MIT licensed
-         line-art glyph, not the Instagram brand wordmark/logo) rather than
-         a raster asset — keeps this consistent with the like/comment/send
-         icons below and avoids embedding trademarked brand art. -->
-    <a class="feed-head-top" href="https://www.instagram.com/pmsoc.usyd/" target="_blank" rel="noopener" aria-label="Sydney University Project Management Society on Instagram">
-      <span class="feed-head-logo">
-        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>
-      </span>
-      <svg class="feed-title" viewBox="0 0 620 60" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sydney University Project Management Society">
-        <text class="title-shadow" x="3" y="27" font-size="30" letter-spacing="1">SYDNEY UNIVERSITY</text>
-        <text class="title-shadow" x="3" y="55" font-size="22" letter-spacing="1">PROJECT MANAGEMENT SOCIETY</text>
-        <text class="title-main" x="0" y="24" font-size="30" letter-spacing="1">SYDNEY UNIVERSITY</text>
-        <text class="title-main" x="0" y="52" font-size="22" letter-spacing="1">PROJECT MANAGEMENT SOCIETY</text>
-      </svg>
+
+  <div class="ig-header">
+    <div class="ig-header-top">
+      <img class="ig-avatar" src="{logo}" alt="pmsoc.usyd avatar">
+      <div class="ig-header-info">
+        <div class="ig-username-row">
+          <a class="ig-username" href="{profile_url}" target="_blank" rel="noopener">{handle}</a>
+          <a class="ig-btn ig-btn-follow" href="{profile_url}" target="_blank" rel="noopener">Follow</a>
+          <a class="ig-btn ig-btn-message" href="{profile_url}" target="_blank" rel="noopener">Message</a>
+        </div>
+        <div class="ig-stats-row">
+          <span><b>{posts_count}</b> posts</span>
+          <span><b>{followers_count}</b> followers</span>
+          <span><b>{following_count}</b> following</span>
+        </div>
+      </div>
+    </div>
+    <div class="ig-bio">
+      <p class="ig-bio-name">{display_name}</p>
+      <p class="ig-bio-text">{bio_html}</p>
+      <a class="ig-bio-link" href="{link_url}" target="_blank" rel="noopener">{link_text}</a>
+    </div>
+  </div>
+
+  <div class="ig-tabs">
+    <a class="ig-tab active" href="{profile_url}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+      Posts
+    </a>
+    <a class="ig-tab" href="{reels_url}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+      Reels
+    </a>
+    <a class="ig-tab" href="{tagged_url}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      Tagged
     </a>
   </div>
+
+  <!-- ============================================================
+       3-column grid — a snapshot of the same posts shown in full
+       below, styled like the real profile grid (square tiles, a
+       small reel/carousel badge in the corner). Re-run
+       build/build_canvas_html_ig.py after editing build/ig_posts.json
+       to regenerate both the grid and the caption cards.
+       ============================================================ -->
+  <div class="ig-grid">
+{{GRID}}
+  </div>
+
+  <div class="feed-section-label">Recent posts &amp; captions</div>
 
   <!-- ============================================================
        These cards are static snapshots (caption + photo pulled from
        each Instagram post), not a live embed, so they render inside
        a Canvas iframe without any Instagram embed/CSP restrictions.
-       To add a new post: duplicate a <div class="feed-item"> block
-       (or, more simply, re-run build/build_canvas_html_ig.py after
-       editing build/ig_posts.json) and place it at the top.
+       To add a new post: re-run build/build_canvas_html_ig.py after
+       editing build/ig_posts.json.
        ============================================================ -->
-
   <div class="feed-list">
 {{CARDS}}
   </div>
 
   <div class="feed-foot">
-    <a href="https://www.instagram.com/pmsoc.usyd/" target="_blank" rel="noopener">See more on PMSOC Instagram</a>
+    <a href="{profile_url}" target="_blank" rel="noopener">See more on Instagram</a>
   </div>
 </div>
 

@@ -82,11 +82,16 @@ restrict embeddable domains to an allowlist).
 
 # PMSoc Instagram Feed Widget
 
-A static HTML page that mimics an Instagram feed for the Sydney University
-Project Management Society (PMSoc), styled to match the SoPM x PMSoc BBQ
-flyer palette used by the LinkedIn widget above. Built as a static snapshot
-(not a live Instagram embed) so it can be embedded via `<iframe>` in Canvas
-(Instructure) without CSP/framing issues.
+A static HTML page styled to look like the real pmsoc.usyd Instagram
+profile — a profile header (avatar, Follow/Message buttons, post/follower/
+following counts, bio), a Posts/Reels/Tagged tab row, a 3-column post grid,
+and the up-to-5 most recent posts shown again below as full readable caption
+cards (so students don't have to leave Canvas to read a caption). Colours
+match the authentic Instagram look (white background, black/grey text,
+Instagram blue) rather than the SoPM/PMSoc teal branding used on the
+LinkedIn widget above. Built as a static snapshot (not a live Instagram
+embed), so it can be embedded via `<iframe>` in Canvas (Instructure) without
+CSP/framing issues.
 
 - **Live file:** `PMSoc-Instagram.html` (repo root) — this is what GitHub
   Pages serves and what Canvas iframes point at.
@@ -99,12 +104,13 @@ flyer palette used by the LinkedIn widget above. Built as a static snapshot
 ```
 PMSoc-Instagram.html        <- generated output, do not hand-edit
 build/
-  ig_posts.json             <- the up-to-5 posts shown, newest first
+  ig_posts.json             <- the up-to-5 posts shown, newest first (grid + caption cards)
+  ig_profile.json           <- profile header data (bio, follower/following/post counts, link)
   canvas_template_ig.html   <- page shell/CSS/JS (hand-edit this for style changes)
-  build_canvas_html_ig.py   <- reads ig_posts.json + template -> writes PMSoc-Instagram.html
+  build_canvas_html_ig.py   <- reads ig_posts.json + ig_profile.json + template -> writes PMSoc-Instagram.html
   assets/                   <- base64 data-URI text files (post photos; reuses
-                                logo_datauri.txt and fraunces_b64.txt from the
-                                LinkedIn widget's asset set)
+                                logo_datauri.txt from the LinkedIn widget's asset set
+                                as the profile avatar)
 ```
 
 ## How dates work
@@ -138,8 +144,10 @@ ago" in JavaScript every time it's opened, so it never goes stale.
      "type": "post"
    }
    ```
-   Use `"type": "reel"` for a reel (adds a small "REEL" badge on the
-   thumbnail); omit or set `"post"` otherwise.
+   Set `"type"` to `"reel"` for a reel (small play-icon badge in the grid,
+   "REEL" badge on the caption-card thumbnail), `"carousel"` for a
+   multi-photo/video post (small stacked-squares badge in the grid), or
+   `"post"` (or omit it) for a normal single-photo post.
 5. Drop the oldest post off the end of the list if there are now more than 5,
    and delete its now-unused asset file from `build/assets/`.
 6. From the repo root, run:
@@ -148,6 +156,18 @@ ago" in JavaScript every time it's opened, so it never goes stale.
    ```
 7. Commit and push `PMSoc-Instagram.html`, `build/ig_posts.json`, and any
    new/removed files under `build/assets/`.
+
+## Updating the profile header
+
+`build/ig_profile.json` holds everything in the header above the grid:
+`display_name`, `handle`, `bio` (use `\n` for line breaks — rendered with
+`white-space: pre-line`), `link_text` / `link_url` (the bio link), `posts_count`
+/ `followers_count` / `following_count`, and `profile_url` / `reels_url` /
+`tagged_url` (used by the avatar, username, Follow/Message buttons, and the
+Posts/Reels/Tagged tabs). `mention_handle` / `mention_url` control the one
+`@handle` in the bio that gets turned into a link (e.g. `@sydney_uni`).
+Update these values periodically to keep the follower/following/post counts
+roughly current, then re-run `python3 build/build_canvas_html_ig.py`.
 
 ## Embedding in Canvas
 
