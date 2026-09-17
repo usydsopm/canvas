@@ -28,7 +28,7 @@
     color: var(--ig-text);
   }
   .feed-wrap {
-    max-width: 960px;
+    max-width: 1160px;
     margin: 0 auto;
     background: var(--ig-bg);
     border-left: 1px solid var(--ig-border-light);
@@ -126,12 +126,13 @@
   }
   .ig-bio-link:hover { text-decoration: underline; }
 
-  /* ---------------- Tabs ---------------- */
+  /* ---------------- Tabs (centered to the grid/feed column only) ---------------- */
   .ig-tabs {
     display: flex;
     justify-content: center;
     gap: 56px;
     border-top: 1px solid var(--ig-border-light);
+    margin-bottom: 6px;
   }
   .ig-tab {
     display: flex;
@@ -162,7 +163,7 @@
   /* ---------------- Two-column body: grid (left) + detail (right) ---------------- */
   .ig-body {
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 20px;
     padding: 3px 20px 8px;
   }
@@ -217,17 +218,19 @@
     pointer-events: none;
   }
 
-  /* ---------------- Detail panel (right column) ---------------- */
+  /* ---------------- Detail panel (right column) ----------------
+     A full-height vertical rule (border-left, stretched via
+     align-items: stretch on .ig-body above) separates the feed/grid
+     side from the highlighted post, rather than boxing the detail
+     panel in its own bordered card. */
   .ig-detail-col {
-    flex: 0 0 320px;
+    flex: 0 0 440px;
+    border-left: 1px solid var(--ig-border);
+    padding-left: 24px;
   }
   .ig-detail {
     position: sticky;
     top: 12px;
-    border: 1px solid var(--ig-border-light);
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
     display: flex;
     flex-direction: column;
   }
@@ -254,17 +257,18 @@
   }
   .ig-detail-photo-wrap {
     width: 100%;
-    max-height: 320px;
+    max-height: 460px;
     background: var(--ig-page-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    border-radius: 8px;
   }
   .ig-detail-photo-wrap img {
     display: block;
     width: 100%;
-    max-height: 320px;
+    max-height: 460px;
     object-fit: contain;
   }
   .ig-detail-actions {
@@ -300,7 +304,7 @@
   .ig-detail-caption-wrap {
     padding: 6px 12px 10px;
     overflow-y: auto;
-    max-height: 170px;
+    max-height: 220px;
     flex: 1 1 auto;
   }
   .ig-detail-caption {
@@ -327,9 +331,17 @@
   }
   .ig-detail-link:hover { color: var(--ig-blue-hover); }
 
-  @media (max-width: 680px) {
+  @media (max-width: 760px) {
     .ig-body { flex-direction: column; }
-    .ig-detail-col { flex: 1 1 auto; width: 100%; }
+    .ig-detail-col {
+      flex: 1 1 auto;
+      width: 100%;
+      border-left: none;
+      border-top: 1px solid var(--ig-border);
+      padding-left: 0;
+      padding-top: 16px;
+      margin-top: 8px;
+    }
     .ig-detail { position: static; }
   }
 
@@ -380,34 +392,36 @@
     </div>
   </div>
 
-  <div class="ig-tabs">
-    <a class="ig-tab active" href="{profile_url}" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
-      Posts
-    </a>
-    <a class="ig-tab" href="{reels_url}" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-      Reels
-    </a>
-    <a class="ig-tab" href="{tagged_url}" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-      Tagged
-    </a>
-  </div>
-
   <!-- ============================================================
-       Left: a 3-column grid snapshot of the profile (3 pinned posts
-       + the 9 most recent), styled like the real grid — square
-       tiles with a small pin/reel/carousel badge in the corner.
-       Right: a detail panel that shows whichever post was last
-       clicked, bigger, with its full caption. Clicking a tile never
-       navigates away (middle-click / cmd-click still opens the real
-       post); clicking any action icon, the caption link, Follow or
-       Message does. Re-run build/build_canvas_html_ig.py after
-       editing build/ig_posts.json to regenerate both columns.
+       Left: a Posts/Reels/Tagged tab row (centered to this column
+       only, not the whole page) above a 3-column grid snapshot of
+       the profile (3 pinned posts + the 6 most recent), styled like
+       the real grid — square tiles with a small pin/reel/carousel
+       badge in the corner.
+       Right: a detail panel, separated from the grid by a full-height
+       divider, that shows whichever post was last clicked, bigger,
+       with its full caption. Clicking a tile never navigates away
+       (middle-click / cmd-click still opens the real post); clicking
+       any action icon, the caption link, Follow or Message does.
+       Re-run build/build_canvas_html_ig.py after editing
+       build/ig_posts.json to regenerate both columns.
        ============================================================ -->
   <div class="ig-body">
     <div class="ig-grid-col">
+      <div class="ig-tabs">
+        <a class="ig-tab active" href="{profile_url}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+          Posts
+        </a>
+        <a class="ig-tab" href="{reels_url}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Reels
+        </a>
+        <a class="ig-tab" href="{tagged_url}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          Tagged
+        </a>
+      </div>
       <div class="ig-grid">
 {{GRID}}
       </div>

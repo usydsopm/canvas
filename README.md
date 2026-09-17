@@ -96,7 +96,7 @@ as a static snapshot (not a live Instagram embed), so it can be embedded via
 `<iframe>` in Canvas (Instructure) without CSP/framing issues.
 
 To the right of the grid is a detail panel showing whichever post was last
-clicked, bigger, with its full caption — clicking any of the 12 grid tiles
+clicked, bigger, with its full caption — clicking any of the 9 grid tiles
 swaps the panel's photo/caption/date in place (via JavaScript) rather than
 navigating away, so students can browse without leaving Canvas. A plain
 click only ever updates the panel; middle-click or cmd/ctrl-click on a tile
@@ -118,7 +118,7 @@ detail panel is decorative-only.
 ```
 PMSoc-Instagram.html        <- generated output, do not hand-edit
 build/
-  ig_posts.json             <- the 12 posts shown (3 pinned + 9 recent), in grid order
+  ig_posts.json             <- the 9 posts shown (3 pinned + 6 recent), in grid order
   ig_profile.json           <- profile header data (bio, follower/following/post counts, link)
   canvas_template_ig.html   <- page shell/CSS/JS (hand-edit this for style changes)
   build_canvas_html_ig.py   <- reads ig_posts.json + ig_profile.json + template -> writes PMSoc-Instagram.html
@@ -138,18 +138,19 @@ itself treats pinned posts.
 
 ## Adding/updating posts
 
-`ig_posts.json` is an array of exactly 12 posts, **in the same order the
-real grid shows them**: the profile's currently pinned posts first (in
-their pinned order), then its most recent posts after them, newest first.
+`ig_posts.json` is an array of exactly 9 posts (a 3x3 grid), **in the same
+order the real grid shows them**: the profile's currently pinned posts first
+(in their pinned order), then its 6 most recent posts after them, newest
+first.
 
 1. Open https://www.instagram.com/pmsoc.usyd/ and read the grid in order.
    The first up-to-3 tiles with a small pin icon (visible in an authenticated
    browser session) are the pinned posts; note them and their order. Then
-   list the next 9 tiles after those — that's the "most recent" set. Use
+   list the next 6 tiles after those — that's the "most recent" set. Use
    judgment on what counts as a normal public grid post/reel: skip Story/
    Highlight-only content, anything private or restricted, and reposts that
    add no original PMSoc content.
-2. For each of the 12, open its permalink and grab: the exact date (Instagram
+2. For each of the 9, open its permalink and grab: the exact date (Instagram
    shows the real date on hover/title over its relative "X days ago" string
    — use that, not the relative string), the full caption text, and its main
    photo (for a reel, a representative video frame).
@@ -196,10 +197,11 @@ roughly current, then re-run `python3 build/build_canvas_html_ig.py`.
 In the Canvas Rich Content Editor, switch to the HTML view and add:
 ```html
 <iframe src="https://usydsopm.github.io/canvas/PMSoc-Instagram.html"
-        style="width:100%;height:1200px;border:0;"></iframe>
+        style="width:100%;height:1080px;border:0;"></iframe>
 ```
 Adjust `height` to taste (the page lays out the grid and detail panel
-side by side above ~680px wide and stacks them on narrower screens/iframes,
+side by side above ~760px wide and stacks them on narrower screens/iframes
+(with a horizontal divider instead of the vertical one),
 so a narrower iframe will need extra height). Check with USYD's Canvas/LMS
 admin team first that custom iframe embeds from github.io are permitted
 (some Canvas instances restrict embeddable domains to an allowlist).

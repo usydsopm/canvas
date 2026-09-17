@@ -8,7 +8,7 @@ Run from the REPO ROOT:
 
 Output: PMSoc-Instagram.html at the repo root (what GitHub Pages serves).
 
-The page shows a 3-column grid (3 pinned posts + the 9 most recent, mirroring
+The page shows a 3-column grid (3 pinned posts + the 6 most recent, mirroring
 how Instagram's own profile grid orders pinned vs. chronological posts) next
 to a detail panel that displays whichever post was last clicked, bigger, with
 its full caption. Clicking a grid tile never navigates away (a plain click is
