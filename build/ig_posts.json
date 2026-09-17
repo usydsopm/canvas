@@ -69,6 +69,7 @@
     "img_asset": "post9_ig_datauri.txt",
     "url": "https://www.instagram.com/pmsoc.usyd/reel/Dc8wUEit6Ac/",
     "type": "reel",
-    "pinned": false
+    "pinned": false,
+    "video_asset": "post9_video_datauri.txt"
   }
 ]

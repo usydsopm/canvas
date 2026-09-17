@@ -70,7 +70,7 @@ GRID_PIN_BADGE = PIN_ICON.replace(
     '<svg class="ig-grid-pin" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">',
 )
 
-grid_item_tpl = """      <a class="ig-grid-item{active}" href="{url}" target="_blank" rel="noopener" data-url="{url}" data-kind="{kind}" data-date-iso="{date_iso}">
+grid_item_tpl = """      <a class="ig-grid-item{active}" href="{url}" target="_blank" rel="noopener" data-url="{url}" data-kind="{kind}" data-date-iso="{date_iso}"{video_attr}>
         <img src="{img}" alt="{alt}" loading="lazy">
         {pin_badge}{badge}
         <template>{caption_html}</template>
@@ -98,6 +98,15 @@ def grid_badge(p):
     return ""
 
 
+def video_attr(p):
+    # Reels with a "video_asset" get the actual video footage embedded as a
+    # data URI (see README.md); clicking the tile then plays it inline in
+    # the detail panel instead of showing just a static thumbnail.
+    if not p.get("video_asset"):
+        return ""
+    return ' data-video-src="{}"'.format(asset(p["video_asset"]))
+
+
 grid_html = "\n".join(
     grid_item_tpl.format(
         active=" active" if i == 0 else "",
@@ -109,6 +118,7 @@ grid_html = "\n".join(
         pin_badge=GRID_PIN_BADGE if p.get("pinned") else "",
         badge=grid_badge(p),
         caption_html=html.escape(p.get("caption", ""), quote=True),
+        video_attr=video_attr(p),
     )
     for i, p in enumerate(posts)
 )

@@ -122,7 +122,8 @@ build/
   ig_profile.json           <- profile header data (bio, follower/following/post counts, link)
   canvas_template_ig.html   <- page shell/CSS/JS (hand-edit this for style changes)
   build_canvas_html_ig.py   <- reads ig_posts.json + ig_profile.json + template -> writes PMSoc-Instagram.html
-  assets/                   <- base64 data-URI text files (post photos; reuses
+  assets/                   <- base64 data-URI text files (post photos, and for
+                                reels their actual video footage; reuses
                                 logo_datauri.txt from the LinkedIn widget's asset set
                                 as the profile avatar)
 ```
@@ -172,13 +173,57 @@ first.
    `"carousel"` for a multi-photo/video post (small stacked-squares badge),
    or `"post"` (or omit it) for a normal single-photo post. Set `"pinned"` to
    `true` for the profile's currently pinned posts (adds a small pin badge in
-   the grid) — there should be exactly 3 of these, first in the array.
+   the grid) — there should be exactly 3 of these, first in the array. For a
+   reel, also add `"video_asset"` so it actually plays in the widget instead
+   of showing a static thumbnail — see "Making a reel's video play inline"
+   below.
 5. From the repo root, run:
    ```
    python3 build/build_canvas_html_ig.py
    ```
 6. Commit and push `PMSoc-Instagram.html`, `build/ig_posts.json`, and any
    new/removed files under `build/assets/`.
+
+## Making a reel's video play inline
+
+A reel's grid tile can play its actual video in the detail panel (with
+normal browser controls — play/pause, scrubbing, volume, fullscreen) instead
+of just showing a static thumbnail and linking out. This works by embedding
+the video itself as a base64 data URI, the same technique used for photos,
+so the page stays fully self-contained and works offline/inside Canvas.
+
+1. Capture the reel's video from an authenticated Instagram browser session
+   (Instagram serves reel video through a `blob:` URL backed by MediaSource
+   Extensions, which can't be `fetch()`-ed directly — the reliable way to
+   get a real file out of it is to re-record the decoded playback):
+   - Open the reel's permalink and let the `<video>` element load.
+   - In the page console, grab the video element, call
+     `video.captureStream()` to get a live `MediaStream`, and feed it to a
+     `MediaRecorder` (`video/webm;codecs=vp9,opus` if supported) with
+     `recorder.start()`.
+   - Click the reel's own play button (a real user gesture is more reliable
+     here than calling `video.play()` from a script, which Instagram's own
+     player can interrupt with a competing `pause()`).
+   - Let it play through to the end, then read back the recorded chunks as
+     a `Blob`, convert it to base64 (`FileReader.readAsDataURL`), and save it
+     as `data:video/webm;base64,...`.
+   - Re-mux the result once with `ffmpeg -i in.webm -c copy out.webm` — the
+     browser's own recorded file otherwise carries a slightly wrong/rounded
+     duration in its container header (the video content itself is fine).
+2. Save that data URI as a new text file under `build/assets/` (e.g.
+   `post9_video_datauri.txt`), matching the pattern used for photos.
+3. Add `"video_asset": "post9_video_datauri.txt"` to that post's entry in
+   `build/ig_posts.json`.
+4. Re-run `python3 build/build_canvas_html_ig.py` and commit the new
+   `build/assets/*.txt` file along with the usual files.
+
+**Size tradeoff:** embedding real video is much heavier than a photo — a
+~10-15 second reel typically adds a few MB to `PMSoc-Instagram.html` (and to
+the git repo). This is a deliberate tradeoff for a widget that has to be a
+single static file with no external video host; keep an eye on overall page
+size if more than a couple of reels get this treatment, and prefer trimming
+recording length/quality over skipping the re-mux step if a file feels too
+large.
 
 ## Updating the profile header
 

@@ -271,6 +271,13 @@
     max-height: 460px;
     object-fit: contain;
   }
+  .ig-detail-photo-wrap video {
+    display: block;
+    width: 100%;
+    max-height: 460px;
+    object-fit: contain;
+    background: #000;
+  }
   .ig-detail-actions {
     display: flex;
     align-items: center;
@@ -434,6 +441,7 @@
         </div>
         <div class="ig-detail-photo-wrap">
           <img src="" alt="">
+          <video controls playsinline preload="none" style="display:none"></video>
         </div>
         <div class="ig-detail-actions">
           <a class="action" href="{profile_url}" target="_blank" rel="noopener" aria-label="Like">{heart}</a>
@@ -473,6 +481,7 @@
     }
 
     var detailImg = document.querySelector('.ig-detail-photo-wrap img');
+    var detailVideo = document.querySelector('.ig-detail-photo-wrap video');
     var detailDate = document.querySelector('.ig-detail-date .date-text');
     var detailCapText = document.querySelector('.ig-detail-caption .cap-text');
     var detailLink = document.querySelector('.ig-detail-link');
@@ -487,6 +496,20 @@
       var img = tile.querySelector('img');
       detailImg.src = img.src;
       detailImg.alt = img.alt;
+
+      var videoSrc = tile.getAttribute('data-video-src');
+      if (videoSrc) {
+        detailVideo.src = videoSrc;
+        detailVideo.setAttribute('poster', img.src);
+        detailVideo.style.display = '';
+        detailImg.style.display = 'none';
+      } else {
+        detailVideo.pause();
+        detailVideo.removeAttribute('src');
+        detailVideo.load();
+        detailVideo.style.display = 'none';
+        detailImg.style.display = '';
+      }
 
       var url = tile.getAttribute('data-url');
       var kind = tile.getAttribute('data-kind');
