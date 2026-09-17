@@ -8,22 +8,32 @@ Run from the REPO ROOT:
 
 Output: PMSoc-Instagram.html at the repo root (what GitHub Pages serves).
 
-To add a new post: add a new object to the FRONT of the list in
-build/ig_posts.json (newest first) with date_iso / caption / url / type /
-img_asset, and save its post photo as a base64 data URI text file under
-build/assets/ (see README.md in the repo root for the exact steps + how to
-fetch a photo from an authenticated Instagram browser session). Keep at
-most 5 posts in ig_posts.json so the page doesn't grow unbounded — drop
-the oldest one off the end (and delete its asset file) when adding a new one.
+The page shows a 3-column grid (3 pinned posts + the 9 most recent, mirroring
+how Instagram's own profile grid orders pinned vs. chronological posts) next
+to a detail panel that displays whichever post was last clicked, bigger, with
+its full caption. Clicking a grid tile never navigates away (a plain click is
+intercepted by canvas_template_ig.html's own script); middle-click/cmd-click
+still opens the real Instagram post, and every action icon, the caption link,
+and the Follow/Message buttons always link out to the real pmsoc.usyd profile
+or post.
+
+To add/update posts: edit build/ig_posts.json (see its "pinned" field below).
+Keep exactly the pinned posts currently pinned on the real profile at the
+front (mark them "pinned": true, in the order they appear on the real grid),
+then the most recent non-pinned posts after them, newest first. Save each
+post's photo as a base64 data URI text file under build/assets/ (see
+README.md for the exact steps + how to fetch a photo from an authenticated
+Instagram browser session).
 
 To update the profile header (bio, follower/following/post counts, link),
 edit build/ig_profile.json.
 """
+import html
 import json
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))       # .../repo/build
-REPO_ROOT = os.path.dirname(HERE)                        # .../repo
+REPO_ROOT = os.path.dirname(HERE)                         # .../repo
 ASSETS_DIR = os.path.join(HERE, "assets")
 
 
@@ -41,46 +51,30 @@ with open(os.path.join(HERE, "ig_profile.json")) as f:
 logo = asset("logo_datauri.txt")
 
 # Feather Icons (MIT licensed) — simple line icons for the action bar, the
-# reel "play" badge, and the carousel "copy" badge used in the grid.
+# reel "play" badge, the carousel "copy" badge, and the pinned-post "pin"
+# badge used in the grid.
 HEART_ICON = '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>'
 COMMENT_ICON = '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>'
 SEND_ICON = '<svg viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>'
 BOOKMARK_ICON = '<svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>'
-PLAY_ICON = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>'
 COPY_ICON = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>'
+PIN_ICON = '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>'
 
-card_tpl = """
-    <div class="feed-item">
-      <div class="feed-item-header">
-        <img class="feed-item-avatar" src="{logo}" alt="PMSoc logo">
-        <span class="feed-item-handle">pmsoc.usyd</span>
-      </div>
-      <div class="feed-item-photo">
-        <img src="{img}" alt="{alt}" loading="lazy">
-        {reel_badge}
-      </div>
-      <div class="feed-item-actions">
-        <a class="action" href="{url}" target="_blank" rel="noopener" aria-label="Like">{heart}</a>
-        <a class="action" href="{url}" target="_blank" rel="noopener" aria-label="Comment">{comment}</a>
-        <a class="action" href="{url}" target="_blank" rel="noopener" aria-label="Send">{send}</a>
-        <span class="spacer"></span>
-        <a class="action" href="{url}" target="_blank" rel="noopener" aria-label="Save">{bookmark}</a>
-      </div>
-      <div class="feed-item-text">
-        <div class="feed-item-date"><span class="date-text" data-iso="{date_iso}"></span></div>
-        <p class="feed-item-caption"><span class="handle-inline">pmsoc.usyd</span>{caption}</p>
-        <a class="feed-item-link" href="{url}" target="_blank" rel="noopener">View {kind} on Instagram &#8599;</a>
-      </div>
-    </div>"""
-
-grid_item_tpl = """    <a class="ig-grid-item" href="{url}" target="_blank" rel="noopener">
-      <img src="{img}" alt="{alt}" loading="lazy">
-      {badge}
-    </a>"""
-
-REEL_BADGE_TPL = '<span class="reel-badge">{play} REEL</span>'
 GRID_REEL_BADGE = '<svg class="ig-grid-badge" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>'
-GRID_CAROUSEL_BADGE = COPY_ICON.replace('<svg viewBox="0 0 24 24">', '<svg class="ig-grid-badge" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">')
+GRID_CAROUSEL_BADGE = COPY_ICON.replace(
+    '<svg viewBox="0 0 24 24">',
+    '<svg class="ig-grid-badge" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">',
+)
+GRID_PIN_BADGE = PIN_ICON.replace(
+    '<svg viewBox="0 0 24 24">',
+    '<svg class="ig-grid-pin" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">',
+)
+
+grid_item_tpl = """      <a class="ig-grid-item{active}" href="{url}" target="_blank" rel="noopener" data-url="{url}" data-kind="{kind}" data-date-iso="{date_iso}">
+        <img src="{img}" alt="{alt}" loading="lazy">
+        {pin_badge}{badge}
+        <template>{caption_html}</template>
+      </a>"""
 
 
 def alt_text(caption, limit=80):
@@ -89,12 +83,10 @@ def alt_text(caption, limit=80):
 
 
 def kind_label(p):
-    t = p.get("type")
-    if t == "reel":
-        return "reel"
-    if t == "carousel":
-        return "post"
-    return "post"
+    # "carousel" posts are still a normal feed post (just multi-photo), so
+    # they read as "post" in the "View ... on Instagram" link, same as a
+    # single-photo post; only a reel reads as "reel".
+    return "reel" if p.get("type") == "reel" else "post"
 
 
 def grid_badge(p):
@@ -106,29 +98,19 @@ def grid_badge(p):
     return ""
 
 
-cards_html = "\n".join(
-    card_tpl.format(
-        date_iso=p["date_iso"],
-        caption=p["caption"],
-        url=p["url"],
-        img=asset(p["img_asset"]),
-        alt=alt_text(p.get("caption", "")),
-        logo=logo,
-        heart=HEART_ICON, comment=COMMENT_ICON, send=SEND_ICON, bookmark=BOOKMARK_ICON,
-        kind=kind_label(p),
-        reel_badge=REEL_BADGE_TPL.format(play=PLAY_ICON) if p.get("type") == "reel" else "",
-    )
-    for p in posts
-)
-
 grid_html = "\n".join(
     grid_item_tpl.format(
+        active=" active" if i == 0 else "",
         url=p["url"],
         img=asset(p["img_asset"]),
-        alt=alt_text(p.get("caption", "")),
+        alt=html.escape(alt_text(p.get("caption", "")), quote=True),
+        kind=kind_label(p),
+        date_iso=p["date_iso"],
+        pin_badge=GRID_PIN_BADGE if p.get("pinned") else "",
         badge=grid_badge(p),
+        caption_html=html.escape(p.get("caption", ""), quote=True),
     )
-    for p in posts
+    for i, p in enumerate(posts)
 )
 
 # Linkify the @mention in the bio (e.g. "@sydney_uni" -> a link), preserving
@@ -145,8 +127,7 @@ if mention:
 with open(os.path.join(HERE, "canvas_template_ig.html")) as f:
     template = f.read()
 
-out = template.replace("{{CARDS}}", cards_html)
-out = out.replace("{{GRID}}", grid_html)
+out = template.replace("{{GRID}}", grid_html)
 out = out.replace("{logo}", logo)
 out = out.replace("{profile_url}", profile["profile_url"])
 out = out.replace("{reels_url}", profile["reels_url"])
@@ -159,9 +140,14 @@ out = out.replace("{display_name}", profile["display_name"])
 out = out.replace("{bio_html}", bio_html)
 out = out.replace("{link_url}", profile["link_url"])
 out = out.replace("{link_text}", profile["link_text"])
+out = out.replace("{heart}", HEART_ICON)
+out = out.replace("{comment}", COMMENT_ICON)
+out = out.replace("{send}", SEND_ICON)
+out = out.replace("{bookmark}", BOOKMARK_ICON)
 
 out_path = os.path.join(REPO_ROOT, "PMSoc-Instagram.html")
 with open(out_path, "w") as f:
     f.write(out)
 
-print("done:", out_path, len(out), "bytes,", len(posts), "posts")
+print("done:", out_path, len(out), "bytes,", len(posts), "posts",
+      "(", sum(1 for p in posts if p.get("pinned")), "pinned )")

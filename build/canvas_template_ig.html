@@ -21,21 +21,15 @@
     --ig-blue-hover:    #1877f2;
   }
   * { box-sizing: border-box; }
-  html, body {
-    height: 100%;
-    margin: 0;
-  }
+  html, body { margin: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--ig-page-bg);
     color: var(--ig-text);
   }
   .feed-wrap {
-    max-width: 700px;
+    max-width: 960px;
     margin: 0 auto;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
     background: var(--ig-bg);
     border-left: 1px solid var(--ig-border-light);
     border-right: 1px solid var(--ig-border-light);
@@ -43,7 +37,6 @@
 
   /* ---------------- Profile header ---------------- */
   .ig-header {
-    flex: 0 0 auto;
     padding: 24px 20px 0;
   }
   .ig-header-top {
@@ -166,13 +159,21 @@
     border-top-color: var(--ig-text);
   }
 
-  /* ---------------- 3-column grid ---------------- */
+  /* ---------------- Two-column body: grid (left) + detail (right) ---------------- */
+  .ig-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 3px 20px 8px;
+  }
+  .ig-grid-col {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
   .ig-grid {
-    flex: 0 0 auto;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 3px;
-    padding: 3px 0 0;
   }
   .ig-grid-item {
     position: relative;
@@ -180,12 +181,18 @@
     aspect-ratio: 1 / 1;
     overflow: hidden;
     background: var(--ig-border-light);
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+  .ig-grid-item.active {
+    border-color: var(--ig-blue);
   }
   .ig-grid-item img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    pointer-events: none;
   }
   .ig-grid-badge {
     position: absolute;
@@ -196,163 +203,141 @@
     fill: #fff;
     stroke: #fff;
     filter: drop-shadow(0 0 2px rgba(0,0,0,0.6));
+    pointer-events: none;
+  }
+  .ig-grid-pin {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 14px;
+    height: 14px;
+    fill: #fff;
+    stroke: #fff;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.6));
+    pointer-events: none;
   }
 
-  .feed-section-label {
-    flex: 0 0 auto;
-    padding: 18px 20px 10px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ig-text-secondary);
-    border-top: 1px solid var(--ig-border-light);
+  /* ---------------- Detail panel (right column) ---------------- */
+  .ig-detail-col {
+    flex: 0 0 320px;
   }
-
-  .feed-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 0 16px 12px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--ig-border) var(--ig-bg);
-  }
-  .feed-list::-webkit-scrollbar { width: 8px; }
-  .feed-list::-webkit-scrollbar-track { background: var(--ig-bg); }
-  .feed-list::-webkit-scrollbar-thumb {
-    background: var(--ig-border);
-    border-radius: 999px;
-  }
-  /* Instagram-style post card: header (avatar+handle), square photo,
-     action-icon row, likes/caption block. */
-  .feed-item {
-    display: flex;
-    flex-direction: column;
-    flex: 0 0 auto;
+  .ig-detail {
+    position: sticky;
+    top: 12px;
     border: 1px solid var(--ig-border-light);
     border-radius: 8px;
     overflow: hidden;
     background: #fff;
+    display: flex;
+    flex-direction: column;
   }
-  .feed-item-header {
+  .ig-detail-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
+    gap: 8px;
+    padding: 10px 12px;
   }
-  .feed-item-avatar {
-    width: 32px;
-    height: 32px;
+  .ig-detail-avatar {
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     object-fit: contain;
     border: 1px solid var(--ig-border-light);
     background: #fff;
-    padding: 2px;
+    padding: 1px;
     flex: 0 0 auto;
   }
-  .feed-item-handle {
-    font-size: 13.5px;
+  .ig-detail-handle {
+    font-size: 13px;
     font-weight: 600;
     color: var(--ig-text);
   }
-  .feed-item-photo {
-    position: relative;
+  .ig-detail-photo-wrap {
     width: 100%;
-    aspect-ratio: 1 / 1;
-    background: var(--ig-border-light);
+    max-height: 320px;
+    background: var(--ig-page-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-    min-height: 0;
   }
-  .feed-item-photo img {
+  .ig-detail-photo-wrap img {
     display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-height: 320px;
+    object-fit: contain;
   }
-  .reel-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+  .ig-detail-actions {
     display: flex;
     align-items: center;
-    gap: 4px;
-    background: rgba(0, 0, 0, 0.55);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    padding: 4px 8px;
-    border-radius: 999px;
+    padding: 10px 12px 2px;
+    gap: 14px;
   }
-  .reel-badge svg {
-    width: 12px;
-    height: 12px;
-    fill: #fff;
-    stroke: none;
-  }
-  .feed-item-actions {
-    display: flex;
-    align-items: center;
-    padding: 10px 14px 4px;
-    gap: 16px;
-  }
-  .feed-item-actions .action {
+  .ig-detail-actions .action {
     display: flex;
     align-items: center;
     color: var(--ig-text);
     text-decoration: none;
     cursor: pointer;
   }
-  .feed-item-actions .action svg {
-    width: 22px;
-    height: 22px;
+  .ig-detail-actions .action svg {
+    width: 21px;
+    height: 21px;
     fill: none;
     stroke: var(--ig-text);
     stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
-  .feed-item-actions .spacer { flex: 1 1 auto; }
-  .feed-item-text {
-    padding: 4px 14px 18px;
-  }
-  .feed-item-date {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  .ig-detail-actions .spacer { flex: 1 1 auto; }
+  .ig-detail-date {
+    padding: 6px 12px 0;
     font-size: 11px;
-    font-weight: 400;
     color: var(--ig-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    margin-bottom: 6px;
   }
-  .feed-item-caption {
-    font-size: 13.5px;
-    line-height: 1.55;
-    margin: 0 0 8px;
+  .ig-detail-caption-wrap {
+    padding: 6px 12px 10px;
+    overflow-y: auto;
+    max-height: 170px;
+    flex: 1 1 auto;
+  }
+  .ig-detail-caption {
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
     color: var(--ig-text);
     white-space: pre-line;
   }
-  .feed-item-caption .handle-inline {
+  .ig-detail-caption .handle-inline {
     font-weight: 600;
     color: var(--ig-text);
     margin-right: 4px;
   }
-  .feed-item-link {
+  .ig-detail-link {
+    display: block;
+    text-align: center;
+    padding: 10px 12px;
+    border-top: 1px solid var(--ig-border-light);
     font-size: 12.5px;
     font-weight: 600;
     color: var(--ig-blue);
     text-decoration: none;
   }
-  .feed-item-link:hover { color: var(--ig-blue-hover); }
+  .ig-detail-link:hover { color: var(--ig-blue-hover); }
+
+  @media (max-width: 680px) {
+    .ig-body { flex-direction: column; }
+    .ig-detail-col { flex: 1 1 auto; width: 100%; }
+    .ig-detail { position: static; }
+  }
+
   .feed-foot {
-    flex: 0 0 auto;
     text-align: center;
-    padding: 16px 0 20px;
+    padding: 16px 0 22px;
+    border-top: 1px solid var(--ig-border-light);
+    margin: 0 20px;
   }
   .feed-foot a {
     display: inline-block;
@@ -363,6 +348,7 @@
     font-size: 13px;
     text-decoration: none;
     font-weight: 600;
+    margin-top: 16px;
   }
   .feed-foot a:hover { background: var(--ig-blue-hover); }
 </style>
@@ -410,27 +396,45 @@
   </div>
 
   <!-- ============================================================
-       3-column grid — a snapshot of the same posts shown in full
-       below, styled like the real profile grid (square tiles, a
-       small reel/carousel badge in the corner). Re-run
-       build/build_canvas_html_ig.py after editing build/ig_posts.json
-       to regenerate both the grid and the caption cards.
+       Left: a 3-column grid snapshot of the profile (3 pinned posts
+       + the 9 most recent), styled like the real grid — square
+       tiles with a small pin/reel/carousel badge in the corner.
+       Right: a detail panel that shows whichever post was last
+       clicked, bigger, with its full caption. Clicking a tile never
+       navigates away (middle-click / cmd-click still opens the real
+       post); clicking any action icon, the caption link, Follow or
+       Message does. Re-run build/build_canvas_html_ig.py after
+       editing build/ig_posts.json to regenerate both columns.
        ============================================================ -->
-  <div class="ig-grid">
+  <div class="ig-body">
+    <div class="ig-grid-col">
+      <div class="ig-grid">
 {{GRID}}
-  </div>
-
-  <div class="feed-section-label">Recent posts &amp; captions</div>
-
-  <!-- ============================================================
-       These cards are static snapshots (caption + photo pulled from
-       each Instagram post), not a live embed, so they render inside
-       a Canvas iframe without any Instagram embed/CSP restrictions.
-       To add a new post: re-run build/build_canvas_html_ig.py after
-       editing build/ig_posts.json.
-       ============================================================ -->
-  <div class="feed-list">
-{{CARDS}}
+      </div>
+    </div>
+    <div class="ig-detail-col">
+      <div class="ig-detail">
+        <div class="ig-detail-header">
+          <img class="ig-detail-avatar" src="{logo}" alt="PMSoc logo">
+          <span class="ig-detail-handle">pmsoc.usyd</span>
+        </div>
+        <div class="ig-detail-photo-wrap">
+          <img src="" alt="">
+        </div>
+        <div class="ig-detail-actions">
+          <a class="action" href="{profile_url}" target="_blank" rel="noopener" aria-label="Like">{heart}</a>
+          <a class="action" href="{profile_url}" target="_blank" rel="noopener" aria-label="Comment">{comment}</a>
+          <a class="action" href="{profile_url}" target="_blank" rel="noopener" aria-label="Send">{send}</a>
+          <span class="spacer"></span>
+          <a class="action" href="{profile_url}" target="_blank" rel="noopener" aria-label="Save">{bookmark}</a>
+        </div>
+        <div class="ig-detail-date"><span class="date-text"></span></div>
+        <div class="ig-detail-caption-wrap">
+          <p class="ig-detail-caption"><span class="handle-inline">pmsoc.usyd</span><span class="cap-text"></span></p>
+        </div>
+        <a class="ig-detail-link" href="{profile_url}" target="_blank" rel="noopener">View post on Instagram &#8599;</a>
+      </div>
+    </div>
   </div>
 
   <div class="feed-foot">
@@ -439,9 +443,6 @@
 </div>
 
 <script>
-  // Post dates are stored as absolute ISO dates (data-iso) so this page
-  // never goes stale — "time ago" text is computed fresh every time the
-  // page is opened, rather than being frozen at build time.
   (function () {
     function timeAgo(iso) {
       var then = new Date(iso + 'T00:00:00Z');
@@ -456,9 +457,46 @@
       var y = Math.max(1, Math.round(days / 365.25));
       return y + (y === 1 ? ' year ago' : ' years ago');
     }
-    document.querySelectorAll('.date-text[data-iso]').forEach(function (el) {
-      el.textContent = timeAgo(el.getAttribute('data-iso'));
+
+    var detailImg = document.querySelector('.ig-detail-photo-wrap img');
+    var detailDate = document.querySelector('.ig-detail-date .date-text');
+    var detailCapText = document.querySelector('.ig-detail-caption .cap-text');
+    var detailLink = document.querySelector('.ig-detail-link');
+    var detailActionEls = document.querySelectorAll('.ig-detail-actions .action');
+
+    function selectTile(tile) {
+      document.querySelectorAll('.ig-grid-item').forEach(function (el) {
+        el.classList.remove('active');
+      });
+      tile.classList.add('active');
+
+      var img = tile.querySelector('img');
+      detailImg.src = img.src;
+      detailImg.alt = img.alt;
+
+      var url = tile.getAttribute('data-url');
+      var kind = tile.getAttribute('data-kind');
+      var dateIso = tile.getAttribute('data-date-iso');
+      var tpl = tile.querySelector('template');
+      var captionText = tpl ? tpl.content.textContent : '';
+
+      detailCapText.textContent = captionText;
+      detailDate.setAttribute('data-iso', dateIso);
+      detailDate.textContent = timeAgo(dateIso);
+      detailLink.textContent = 'View ' + kind + ' on Instagram ↗';
+      detailLink.href = url;
+      detailActionEls.forEach(function (a) { a.href = url; });
+    }
+
+    document.querySelectorAll('.ig-grid-item').forEach(function (tile) {
+      tile.addEventListener('click', function (e) {
+        e.preventDefault();
+        selectTile(tile);
+      });
     });
+
+    var firstTile = document.querySelector('.ig-grid-item');
+    if (firstTile) selectTile(firstTile);
   })();
 </script>
 </body>
