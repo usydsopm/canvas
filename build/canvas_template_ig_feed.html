@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PMSoc Instagram Feed</title>
+<style>
+  /* ============================================================
+     PALETTE — same authentic Instagram look as canvas_template_ig.html
+     (white / black-grey text / Instagram blue). This is the
+     single-column "scroll through the feed" variant: profile header
+     + bio at top, then every post stacked as a full-size card you
+     scroll through, instead of a 3x3 grid + side detail panel.
+     ============================================================ */
+  :root {
+    --ig-bg:            #ffffff;
+    --ig-page-bg:       #fafafa;
+    --ig-border:        #dbdbdb;
+    --ig-border-light:  #efefef;
+    --ig-text:          #262626;
+    --ig-text-secondary:#8e8e8e;
+    --ig-blue:          #0095f6;
+    --ig-blue-hover:    #1877f2;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--ig-page-bg);
+    color: var(--ig-text);
+  }
+  .feed-wrap {
+    max-width: 470px;
+    margin: 0 auto;
+    background: var(--ig-bg);
+    border-left: 1px solid var(--ig-border-light);
+    border-right: 1px solid var(--ig-border-light);
+  }
+
+  /* ---------------- Profile header (identical to the grid widget) ---------------- */
+  .ig-header {
+    padding: 24px 16px 0;
+  }
+  .ig-header-top {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .ig-avatar {
+    flex: 0 0 auto;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    object-fit: contain;
+    border: 1px solid var(--ig-border-light);
+    background: #fff;
+    padding: 3px;
+  }
+  .ig-header-info {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .ig-username-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .ig-username {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--ig-text);
+    text-decoration: none;
+  }
+  .ig-btn {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 18px;
+    border: 1px solid transparent;
+  }
+  .ig-btn-follow {
+    background: var(--ig-blue);
+    color: #fff;
+  }
+  .ig-btn-follow:hover { background: var(--ig-blue-hover); }
+  .ig-btn-message {
+    background: #efefef;
+    color: var(--ig-text);
+  }
+  .ig-btn-message:hover { background: var(--ig-border); }
+  .ig-stats-row {
+    display: flex;
+    gap: 20px;
+    font-size: 13.5px;
+    color: var(--ig-text);
+  }
+  .ig-stats-row b { font-weight: 600; }
+  .ig-bio {
+    padding-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .ig-bio-name {
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+  .ig-bio-text {
+    margin: 0 0 4px;
+    white-space: pre-line;
+    color: var(--ig-text);
+  }
+  .ig-bio-text a {
+    color: var(--ig-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .ig-bio-text a:hover { text-decoration: underline; }
+  .ig-bio-link {
+    color: #00376b;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .ig-bio-link:hover { text-decoration: underline; }
+
+  /* ---------------- Tabs ---------------- */
+  .ig-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    border-top: 1px solid var(--ig-border-light);
+    margin-bottom: 4px;
+  }
+  .ig-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 2px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--ig-text-secondary);
+    text-decoration: none;
+    border-top: 1px solid transparent;
+    margin-top: -1px;
+  }
+  .ig-tab svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+  .ig-tab.active {
+    color: var(--ig-text);
+    border-top-color: var(--ig-text);
+  }
+
+  /* ---------------- Scrollable post feed ----------------
+     Each post is a full card: mini header (avatar/handle), full-size
+     photo or playable video, action icon row, date, full caption and
+     a "View on Instagram" link — the same content the grid widget's
+     side detail panel shows for whichever tile is selected, just
+     rendered once per post and stacked vertically so the whole
+     profile reads like scrolling a real Instagram feed. */
+  .ig-posts {
+    padding-bottom: 8px;
+  }
+  .ig-post {
+    border-top: 1px solid var(--ig-border-light);
+    padding-top: 10px;
+    padding-bottom: 14px;
+  }
+  .ig-post:first-child { border-top: none; }
+  .ig-post-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px 10px;
+  }
+  .ig-post-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: contain;
+    border: 1px solid var(--ig-border-light);
+    background: #fff;
+    padding: 1px;
+    flex: 0 0 auto;
+  }
+  .ig-post-handle {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ig-text);
+    text-decoration: none;
+  }
+  .ig-post-kind-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ig-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-left: 2px;
+  }
+  .ig-post-media {
+    width: 100%;
+    background: var(--ig-page-bg);
+    line-height: 0;
+  }
+  .ig-post-media img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  .ig-post-media video {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #000;
+  }
+  .ig-post-actions {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px 2px;
+    gap: 14px;
+  }
+  .ig-post-actions .action {
+    display: flex;
+    align-items: center;
+    color: var(--ig-text);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .ig-post-actions .action svg {
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: var(--ig-text);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ig-post-actions .spacer { flex: 1 1 auto; }
+  .ig-post-date {
+    padding: 6px 16px 0;
+    font-size: 11px;
+    color: var(--ig-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .ig-post-caption-wrap {
+    padding: 6px 16px 8px;
+  }
+  .ig-post-caption {
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+    color: var(--ig-text);
+    white-space: pre-line;
+  }
+  .ig-post-caption .handle-inline {
+    font-weight: 600;
+    color: var(--ig-text);
+    margin-right: 4px;
+  }
+  .ig-post-link {
+    display: block;
+    padding: 2px 16px 0;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ig-blue);
+    text-decoration: none;
+  }
+  .ig-post-link:hover { color: var(--ig-blue-hover); }
+
+  .feed-foot {
+    text-align: center;
+    padding: 16px 0 22px;
+    border-top: 1px solid var(--ig-border-light);
+    margin: 0 16px;
+  }
+  .feed-foot a {
+    display: inline-block;
+    color: #fff;
+    background: var(--ig-blue);
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 16px;
+  }
+  .feed-foot a:hover { background: var(--ig-blue-hover); }
+</style>
+</head>
+<body>
+
+<div class="feed-wrap">
+
+  <div class="ig-header">
+    <div class="ig-header-top">
+      <img class="ig-avatar" src="{logo}" alt="pmsoc.usyd avatar">
+      <div class="ig-header-info">
+        <div class="ig-username-row">
+          <a class="ig-username" href="{profile_url}" target="_blank" rel="noopener">{handle}</a>
+          <a class="ig-btn ig-btn-follow" href="{profile_url}" target="_blank" rel="noopener">Follow</a>
+          <a class="ig-btn ig-btn-message" href="{profile_url}" target="_blank" rel="noopener">Message</a>
+        </div>
+        <div class="ig-stats-row">
+          <span><b>{posts_count}</b> posts</span>
+          <span><b>{followers_count}</b> followers</span>
+          <span><b>{following_count}</b> following</span>
+        </div>
+      </div>
+    </div>
+    <div class="ig-bio">
+      <p class="ig-bio-name">{display_name}</p>
+      <p class="ig-bio-text">{bio_html}</p>
+      <a class="ig-bio-link" href="{link_url}" target="_blank" rel="noopener">{link_text}</a>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       A Posts/Reels/Tagged tab row (same as the grid widget) above a
+       single scrollable column of full post cards, newest first —
+       no pinned special-casing here (that's a grid-only concept);
+       this mirrors Instagram's own chronological feed view. Each
+       card is self-contained (photo/video, actions, date, full
+       caption, "View on Instagram" link) so there's no click-to-swap
+       JS beyond computing each date's "X days ago" text on load.
+       Re-run build/build_canvas_html_ig_feed.py after editing
+       build/ig_posts.json to regenerate this column.
+       ============================================================ -->
+  <div class="ig-tabs">
+    <a class="ig-tab active" href="{profile_url}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+      Posts
+    </a>
+    <a class="ig-tab" href="{reels_url}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+      Reels
+    </a>
+    <a class="ig-tab" href="{tagged_url}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      Tagged
+    </a>
+  </div>
+
+  <div class="ig-posts">
+{{FEED}}
+  </div>
+
+  <div class="feed-foot">
+    <a href="{profile_url}" target="_blank" rel="noopener">See more on Instagram</a>
+  </div>
+</div>
+
+<script>
+  (function () {
+    function timeAgo(iso) {
+      var then = new Date(iso + 'T00:00:00Z');
+      var days = Math.floor((Date.now() - then.getTime()) / 86400000);
+      if (days <= 0) return 'Today';
+      if (days === 1) return '1 day ago';
+      if (days < 30) return days + ' days ago';
+      if (days < 365) {
+        var m = Math.max(1, Math.round(days / 30.44));
+        return m + (m === 1 ? ' month ago' : ' months ago');
+      }
+      var y = Math.max(1, Math.round(days / 365.25));
+      return y + (y === 1 ? ' year ago' : ' years ago');
+    }
+
+    document.querySelectorAll('.ig-post-date[data-iso]').forEach(function (el) {
+      el.textContent = timeAgo(el.getAttribute('data-iso'));
+    });
+  })();
+</script>
+</body>
+</html>

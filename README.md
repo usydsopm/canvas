@@ -250,3 +250,56 @@ side by side above ~760px wide and stacks them on narrower screens/iframes
 so a narrower iframe will need extra height). Check with USYD's Canvas/LMS
 admin team first that custom iframe embeds from github.io are permitted
 (some Canvas instances restrict embeddable domains to an allowlist).
+
+# PMSoc Instagram Feed Widget (scrollable variant)
+
+Same pmsoc.usyd profile header + bio as the grid widget above, but instead
+of a 3x3 grid + side detail panel, every post is rendered as a full-size
+card (photo or playable video, action icons, date, full caption, "View on
+Instagram" link) stacked vertically so the whole thing scrolls like a real
+Instagram feed. No pinned-post special-casing here — pinning only affects
+the real grid's tile order, so this view is purely chronological, newest
+first.
+
+Shares its data source with the grid widget: `build/ig_posts.json` and
+`build/ig_profile.json`. Update posts/profile the same way described in the
+"PMSoc Instagram Feed Widget" section above, then re-run **both** build
+scripts (`build_canvas_html_ig.py` and `build_canvas_html_ig_feed.py`) so
+the grid and feed widgets stay in sync.
+
+- **Live file:** `PMSoc-Instagram-Feed.html` (repo root).
+- **Pages URL:** `https://usydsopm.github.io/canvas/PMSoc-Instagram-Feed.html`
+
+## Repo layout
+
+```
+PMSoc-Instagram-Feed.html     <- generated output, do not hand-edit
+build/
+  ig_posts.json               <- same 9 posts as the grid widget (shared)
+  ig_profile.json             <- same profile header data (shared)
+  canvas_template_ig_feed.html<- page shell/CSS/JS for this variant
+  build_canvas_html_ig_feed.py<- reads ig_posts.json + ig_profile.json + template -> writes PMSoc-Instagram-Feed.html
+  assets/                     <- shared with the grid widget (same post photos/video/logo)
+```
+
+## Rebuilding
+
+From the repo root:
+```
+python3 build/build_canvas_html_ig_feed.py
+```
+Commit `PMSoc-Instagram-Feed.html` alongside whatever `ig_posts.json` /
+`ig_profile.json` / `build/assets/` changes prompted the rebuild (the same
+commit that updates the grid widget can cover this one too).
+
+## Embedding in Canvas
+
+```html
+<iframe src="https://usydsopm.github.io/canvas/PMSoc-Instagram-Feed.html"
+        style="width:100%;height:1400px;border:0;"></iframe>
+```
+This widget is a single column (max-width 470px, centered) rather than a
+two-column layout, so there's no narrow-screen breakpoint to worry about —
+just adjust `height` to however many posts you want visible before the
+iframe itself needs scrolling (the page also scrolls internally, so a
+shorter iframe still works, it just shows less at once).
